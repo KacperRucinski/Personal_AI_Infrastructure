@@ -100,9 +100,10 @@ case "$1" in
     sed -e "s|__HOME__|$HOME|g" -e "s|__BUN_PATH__|$BUN_PATH|g" "$PLIST_SRC" > "$PLIST_DST"
     launchctl load "$PLIST_DST"
 
-    # Verify pulse actually binds :31337 within 10s. Fail loud if not — prior
-    # behavior was silent success even when the daemon never came up.
-    for _ in $(seq 1 20); do
+    # Verify pulse actually binds :31337 within 25s. This avoids false install
+    # failures when launchd delays dispatch after upgrade/reload history, while
+    # still failing before the installer-level hard timeout.
+    for _ in $(seq 1 50); do
       sleep 0.5
       if curl -sS --max-time 1 -o /dev/null -X POST http://localhost:31337/notify \
            -H "Content-Type: application/json" \
@@ -112,7 +113,7 @@ case "$1" in
       fi
     done
 
-    echo "ERROR: PAI Pulse plist installed but port 31337 did not bind within 10s." >&2
+    echo "ERROR: PAI Pulse plist installed but port 31337 did not bind within 25s." >&2
     echo "  Check: tail -50 $PULSE_DIR/logs/pulse-stderr.log" >&2
     exit 1
     ;;
