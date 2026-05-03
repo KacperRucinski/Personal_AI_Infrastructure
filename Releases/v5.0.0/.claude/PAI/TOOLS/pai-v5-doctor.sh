@@ -32,11 +32,27 @@ check_path "$PAI_DIR/PULSE/run-job.ts" "Pulse run-job"
 check_path "$PAI_DIR/PULSE/package.json" "Pulse package.json"
 check_path "$CLAUDE_HOME/package.json" "root package.json"
 
+# Production contract: runtime/config files must reference canonical ALL_CAPS
+# PAI directories. Compatibility symlinks are allowed for legacy installs, but
+# they are not required for a clean Linux install to run.
+CASE_CONTRACT="$PAI_DIR/TOOLS/validate-linux-case-contract.sh"
+if [ -x "$CASE_CONTRACT" ] || [ -f "$CASE_CONTRACT" ]; then
+  if bash "$CASE_CONTRACT" "$CLAUDE_HOME" >/tmp/pai-case-contract-doctor.$$ 2>&1; then
+    ok "Linux case-sensitivity contract"
+  else
+    fail "Linux case-sensitivity contract failed"
+    sed 's/^/  /' /tmp/pai-case-contract-doctor.$$ >&2
+  fi
+  rm -f /tmp/pai-case-contract-doctor.$$
+else
+  warn "case contract validator missing: $CASE_CONTRACT"
+fi
+
 for pair in PULSE:Pulse TOOLS:Tools MEMORY:Memory ALGORITHM:Algorithm DOCUMENTATION:Documentation TEMPLATES:Templates; do
   upper="${pair%%:*}"
   mixed="${pair##*:}"
   if [ -d "$PAI_DIR/$upper" ] && [ ! -e "$PAI_DIR/$mixed" ]; then
-    warn "missing compatibility symlink: $PAI_DIR/$mixed -> $upper"
+    warn "legacy compatibility symlink absent: $PAI_DIR/$mixed -> $upper"
   fi
 done
 
@@ -49,6 +65,12 @@ if [ -f "$PAI_DIR/PULSE/run-job.ts" ]; then
 fi
 
 if [ -f "$PAI_DIR/PULSE/PULSE.toml" ]; then
+  if grep -q 'dashboard_dir = "Observability/out"' "$PAI_DIR/PULSE/PULSE.toml"; then
+    fail "PULSE.toml dashboard_dir still relies on mixed-case Pulse fallback"
+  else
+    ok "PULSE.toml dashboard_dir avoids mixed-case Pulse fallback"
+  fi
+
   for job in assistant-heartbeat assistant-tasks assistant-diary assistant-growth; do
     block=$(awk -v job="$job" '
       $0 == "[[job]]" { printing=0 }
