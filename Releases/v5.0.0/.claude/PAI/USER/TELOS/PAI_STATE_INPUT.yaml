@@ -1,0 +1,25 @@
+# PAI State Input
+#
+# User-maintained percentages for the statusline STATE meter.
+# pct: 0-100 or null when unknown.
+# WritePaiState.ts converts this file to PAI_STATE.json.
+
+health:
+  pct: null
+  note: "Current health capacity / physical baseline"
+
+creative:
+  pct: null
+  note: "Creative output and expressive alignment"
+
+freedom:
+  pct: null
+  note: "Time autonomy and optionality"
+
+relations:
+  pct: null
+  note: "Relationship quality and connection"
+
+fin:
+  pct: null
+  note: "Financial stability and trajectory"
