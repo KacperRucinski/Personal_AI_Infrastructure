@@ -35,7 +35,7 @@ done
 
 # Mixed-case runtime path references are forbidden. Documentation may mention
 # them only in migration notes or historical explanations, so this scan is
-# intentionally scoped to executable/config files.
+# intentionally scoped to executable/config files and explicit path strings.
 mapfile -t files < <(
   find "$CLAUDE_ROOT" -type f \
     \( -name '*.ts' -o -name '*.tsx' -o -name '*.js' -o -name '*.json' -o -name '*.toml' -o -name '*.sh' -o -name '*.zsh' -o -name '*.bash' \) \
@@ -51,14 +51,20 @@ patterns=(
   'PAI/Algorithm'
   'PAI/Documentation'
   'PAI/Templates'
-  '"Pulse"'
-  '"Tools"'
+  '.claude/PAI/Pulse'
+  '.claude/PAI/Tools'
+  '"PAI", "Pulse"'
+  '"PAI", "Tools"'
+  '"PAI", "Memory"'
+  '"PAI", "Algorithm"'
+  '"PAI", "Documentation"'
+  '"PAI", "Templates"'
 )
 
 for file in "${files[@]}"; do
   for pattern in "${patterns[@]}"; do
     if grep -nF "$pattern" "$file" >/tmp/pai-case-contract.$$ 2>/dev/null; then
-      # Allow this validator and Linux repair scripts to mention bad patterns.
+      # Allow validators and Linux repair scripts to mention bad patterns.
       case "$file" in
         */validate-linux-case-contract.sh|*/linux-hotfix.sh|*/pai-v5-doctor.sh) continue ;;
       esac
