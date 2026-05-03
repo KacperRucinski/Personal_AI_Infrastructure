@@ -48,6 +48,7 @@ function main(): void {
   copyFileSync(SETTINGS_PATH, backup);
 
   const changes = [
+    addHook(settings, "SessionStart", undefined, "$HOME/.claude/PAI/TOOLS/WritePaiState.ts"),
     addHook(settings, "Stop", undefined, "$HOME/.claude/hooks/RepeatDetectionPromote.hook.ts"),
     addHook(settings, "PostToolUse", "Edit|Write", "$HOME/.claude/hooks/ISASync.hook.ts"),
     addHook(settings, "PostToolUse", "Edit|Write", "$HOME/.claude/hooks/CheckpointPerISC.hook.ts"),
