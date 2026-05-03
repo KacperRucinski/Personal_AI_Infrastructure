@@ -21,9 +21,11 @@ enabled = false
 
 [observability]
 enabled = true
-# Observability resolves relative dashboard_dir values from ~/.claude/PAI/Pulse.
-# Use a normalized relative path that resolves to the shipped ALL_CAPS PULSE
-# directory on case-sensitive filesystems without requiring compatibility symlinks.
+=======
+# observability.ts resolves relative dashboard_dir entries against PAI/Pulse.
+# Use ../PULSE so Linux case-sensitive filesystems land on the canonical
+# shipped directory without compatibility symlinks.
+=======
 dashboard_dir = "../PULSE/Observability/out"
 
 [performance]
